@@ -1,0 +1,46 @@
+[project]
+name = "hiddenwave"
+version = "0.1.0"
+description = "LSB audio steganography toolkit for PCM 16-bit WAV, with a hardened mode and steganalysis evaluation"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "cryptography>=50.0.2",
+    "fastapi>=0.143.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.4",
+    "pydantic>=2.14.1",
+    "python-multipart>=0.0.32",
+    "scipy>=1.18.1",
+    "typer>=0.27.3",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+hiddenwave = "hiddenwave.adapters.cli.main:app"
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["hiddenwave"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "hypothesis>=6.169.0",
+    "pytest>=9.1.1",
+    "ruff>=0.17.0",
+]

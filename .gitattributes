@@ -1,0 +1,8 @@
+# Luôn dùng LF trong repo (Prettier/ruff đều kỳ vọng LF; tránh autocrlf trên Windows đổi sang CRLF)
+* text=auto eol=lf
+
+# File nhị phân
+*.wav binary
+*.mp3 binary
+*.png binary
+*.woff2 binary
