@@ -6,6 +6,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "cryptography>=50.0.2",
     "fastapi>=0.143.0",
+    "imageio-ffmpeg>=0.6.0",
     "matplotlib>=3.11.2",
     "numpy>=2.5.4",
     "pydantic>=2.14.1",
@@ -24,6 +25,7 @@ build-backend = "uv_build"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["tests"]
 addopts = "-ra"
 
 [tool.ruff]
