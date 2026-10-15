@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from hiddenwave.analysis.robustness import TranscoderUnavailableError, TranscodingError
@@ -37,10 +38,27 @@ def status_for(error: HiddenWaveError) -> int:
     return status.HTTP_400_BAD_REQUEST
 
 
+def validation_message(error: RequestValidationError) -> str:
+    # Chỉ nêu tên field và lý do, không lặp lại giá trị gửi lên (có thể là passphrase).
+    problems = []
+    for detail in error.errors():
+        field = ".".join(str(part) for part in detail["loc"] if part not in ("body", "query"))
+        problems.append(f"{field}: {detail['msg']}" if field else detail["msg"])
+    return "Invalid request: " + "; ".join(problems)
+
+
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(HiddenWaveError)
     def handle_domain_error(_: Request, error: HiddenWaveError) -> JSONResponse:
         return JSONResponse(
             status_code=status_for(error),
             content={"code": error.code, "message": str(error)},
+        )
+
+    # Lỗi validation của FastAPI dùng chung dạng {code, message} với lỗi domain.
+    @app.exception_handler(RequestValidationError)
+    def handle_validation_error(_: Request, error: RequestValidationError) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            content={"code": InvalidInputError.code, "message": validation_message(error)},
         )

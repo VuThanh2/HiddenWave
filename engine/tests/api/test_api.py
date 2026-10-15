@@ -277,3 +277,36 @@ def test_serves_client_build(tmp_path) -> None:
 
     assert "HiddenWave" in client.get("/").text
     assert client.get("/api/health").status_code == 200
+
+
+def test_empty_message_uses_error_shape(client: TestClient, mono_wav: bytes) -> None:
+    response = client.post(
+        "/api/encode", files=wav_file("cover", mono_wav), data={"message": "", "mode": "classic"}
+    )
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "invalid_input"
+    assert "message" in response.json()["message"]
+
+
+def test_validation_error_does_not_echo_input(client: TestClient, mono_wav: bytes) -> None:
+    response = client.post(
+        "/api/decode",
+        files=wav_file("stego", mono_wav),
+        data={"mode": "not-a-mode", "passphrase": PASSPHRASE},
+    )
+
+    assert response.status_code == 422
+    assert set(response.json()) == {"code", "message"}
+    assert response.json()["code"] == "invalid_input"
+    assert "not-a-mode" not in response.text and PASSPHRASE not in response.text
+
+
+def test_openapi_documents_error_shape(client: TestClient) -> None:
+    schema = client.get("/openapi.json").json()
+    responses = schema["paths"]["/api/encode"]["post"]["responses"]
+
+    assert responses["422"]["content"]["application/json"]["schema"]["$ref"].endswith(
+        "/ErrorResponse"
+    )
+    assert "HTTPValidationError" not in schema["components"]["schemas"]
