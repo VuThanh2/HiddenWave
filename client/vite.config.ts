@@ -12,6 +12,10 @@ export default defineConfig({
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
+  build: {
+    // Chunk Plotly (~1.4 MB) chỉ tải khi mở màn hình Đánh giá, không nằm trong lần tải đầu.
+    chunkSizeWarningLimit: 1600,
+  },
   server: {
     proxy: {
       '/api': 'http://127.0.0.1:8000',

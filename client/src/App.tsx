@@ -1,8 +1,17 @@
+import { AppShell } from '@/app/AppShell'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { SessionProvider } from '@/session/SessionProvider'
+import { ThemeProvider } from '@/theme/ThemeProvider'
+
 function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-semibold">HiddenWave</h1>
-    </main>
+    <ThemeProvider>
+      <TooltipProvider delayDuration={200}>
+        <SessionProvider>
+          <AppShell />
+        </SessionProvider>
+      </TooltipProvider>
+    </ThemeProvider>
   )
 }
 
