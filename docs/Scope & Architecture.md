@@ -65,7 +65,7 @@
 | API | FastAPI, uvicorn, Pydantic v2, python-multipart | Adapter HTTP mỏng, tự sinh OpenAPI schema |
 | CLI | Typer | Encode/decode hàng loạt, sweep embedding rate, test MP3 |
 | Frontend | React, Vite, TypeScript, Tailwind CSS, shadcn/ui | Giao diện |
-| Visualization | Plotly (react-plotly.js + bundle `plotly.js-cartesian-dist-min`), wavesurfer.js | Biểu đồ tương tác, audio player có waveform |
+| Visualization | Plotly (react-plotly.js), wavesurfer.js | Biểu đồ tương tác, audio player có waveform |
 | Contract | openapi-typescript | Sinh type TS từ OpenAPI → đổi schema là frontend báo lỗi compile |
 | Tooling | uv, pytest, hypothesis, ruff · npm, ESLint, Prettier | Quản lý dependency (có lockfile), test, lint |
 | External | FFmpeg, Audacity / Sonic Visualiser | Test MP3; nghe và kiểm tra trực quan |
@@ -143,9 +143,9 @@ hidden-wave/
 │   │   │   └── robustness.py        # protocol Transcoder + kiểm tra decode sau nén
 │   │   └── adapters/
 │   │       ├── api/
-│   │       │   ├── app.py           # app factory, exception handlers, mount client build
+│   │       │   ├── app.py           # app factory, exception handlers, mount web build
 │   │       │   ├── schemas.py       # Pydantic DTO
-│   │       │   └── routers/         # encode.py, decode.py, analyze.py, system.py
+│   │       │   └── routers/         # encode.py, decode.py, analyze.py, robustness.py, system.py
 │   │       ├── cli/
 │   │       │   ├── main.py          # serve / encode / decode / evaluate
 │   │       │   └── figures.py       # vẽ hình cho report bằng matplotlib
@@ -156,7 +156,7 @@ hidden-wave/
 │       ├── unit/                    # core, analysis
 │       ├── property/                # round-trip với hypothesis
 │       └── api/                     # test endpoint bằng TestClient
-├── client/                          # React + Vite + TS
+├── client/                             # React + Vite + TS
 │   ├── vite.config.ts               # proxy /api khi dev; build ra client/dist cho FastAPI phục vụ
 │   └── src/
 │       ├── api/                     # client + type sinh từ OpenAPI
@@ -226,19 +226,20 @@ Capacity tối đa (plaintext): (N − 224 − 32) / 8 − 16 byte.
 | Endpoint | Input | Output |
 | --- | --- | --- |
 | `GET /api/health` | — | Version, FFmpeg có sẵn hay không |
-| `POST /api/capacity` | cover, mode | Số byte tối đa → UI hiện capacity khi đang gõ message |
-| `POST /api/encode` | cover, message, mode, passphrase? | File stego (`audio/wav`) |
+| `POST /api/capacity` | cover | Thông tin audio + số byte tối đa của cả hai mode → UI hiện capacity khi đang gõ message, đổi mode không cần gọi lại |
+| `POST /api/encode` | cover, message, mode, passphrase? | File stego (`audio/wav`); thống kê qua header `X-Payload-Bytes`, `X-Capacity-Bytes`, `X-Embedded-Bits`, `X-Changed-Samples` |
 | `POST /api/decode` | stego, mode, passphrase? | Message |
 | `POST /api/analyze/compare` | cover, stego | PSNR, MSE, change rate, waveform, difference, spectrogram data |
-| `POST /api/analyze/chi-square` | file | p-value theo cửa sổ trượt |
-| `POST /api/analyze/sweep` | cover, danh sách embedding rate | Chi-square classic vs hardened theo từng rate (tầng 3) |
-| `POST /api/robustness/mp3` | stego, mode, passphrase? | Kết quả decode sau MP3 round-trip |
+| `POST /api/analyze/chi-square` | file, window_size?, step? | χ² và p-value toàn file + p-value theo cửa sổ trượt |
+| `POST /api/analyze/sweep` | cover, rates?, window_size?, include_rs? | Chi-square, RS, PSNR của classic vs hardened theo từng rate, kèm kết quả của cover làm mốc |
+| `POST /api/analyze/rs` | file | Tỉ lệ nhúng ước lượng + các chỉ số R/S |
+| `POST /api/robustness/mp3` | stego, mode, passphrase? | Message gốc, kết quả khôi phục sau MP3 round-trip (mã lỗi nếu thất bại), tỉ lệ LSB còn khớp, số mẫu trước/sau. Stego phải decode được trước khi nén |
 
 **Nguyên tắc**
 
 - **Endpoint khai báo bằng `def` thường, không `async def`:** xử lý tín hiệu là CPU-bound, FastAPI sẽ tự chạy `def` trong threadpool thay vì chặn event loop.
 - **Trả dữ liệu biểu đồ, không trả ảnh:** waveform giảm mẫu min/max theo bucket, spectrogram giảm về ma trận cỡ vài trăm × vài trăm trước khi gửi.
-- **Ánh xạ lỗi tại adapter:** domain error trong `core` → HTTP status + error code trong exception handler (`InvalidWavError` → 400, `CapacityExceededError` / `MessageNotFoundError` / `AuthenticationFailedError` → 422).
+- **Ánh xạ lỗi tại adapter:** domain error trong `core` → HTTP status + error code trong exception handler (`InvalidWavError` / `IncompatibleAudioError` → 400, `UploadTooLargeError` → 413, `InvalidInputError` / `CapacityExceededError` / `MessageNotFoundError` / `AuthenticationFailedError` → 422, `TranscodingError` → 502, `TranscoderUnavailableError` → 503). Mọi lỗi, kể cả lỗi validation của FastAPI, đều trả cùng dạng `{ code, message }`.
 - **Vệ sinh bảo mật:** chỉ bind `127.0.0.1`, không log message hay passphrase, giới hạn kích thước upload.
 - **Chạy:** khi dev, Vite proxy `/api` sang uvicorn (không cần CORS). Khi demo, FastAPI phục vụ bản build của `client/` → một lệnh duy nhất.
 
