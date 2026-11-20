@@ -126,7 +126,7 @@ function ReportBlock({
 function Figure({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="min-w-0">
-      <dt className="text-[11px] text-muted-foreground">{label}</dt>
+      <dt className="text-2xs text-muted-foreground">{label}</dt>
       <dd className={cn('truncate tabular', strong ? 'text-base font-semibold' : 'text-sm')}>
         {value}
       </dd>

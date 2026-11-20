@@ -7,7 +7,7 @@ export function VerdictBadge({ verdict, className }: { verdict: Verdict; classNa
   return (
     <span
       className={cn(
-        'inline-flex h-5 items-center rounded-full px-2 text-[11px] font-medium',
+        'inline-flex h-5 items-center rounded-full px-2 text-2xs font-medium',
         copy.tone,
         className,
       )}

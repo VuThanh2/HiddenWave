@@ -127,7 +127,7 @@ function ScoreRing({ correct, total }: { correct: number; total: number }) {
             <AnimatedNumber value={correct} format={(value) => String(Math.round(value))} />
             <span className="text-lg text-muted-foreground">/{total}</span>
           </div>
-          <div className="text-[11px] text-muted-foreground">lượt đúng</div>
+          <div className="text-2xs text-muted-foreground">lượt đúng</div>
         </div>
       </div>
     </div>
