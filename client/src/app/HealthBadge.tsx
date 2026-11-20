@@ -26,9 +26,11 @@ export function HealthBadge({ health }: { health: HealthState }) {
           </span>
           Engine
         </span>
-        <span className="text-muted-foreground tabular">
-          {online ? `v${health.health.version}` : health.status === 'checking' ? '…' : 'offline'}
-        </span>
+        {!online && (
+          <span className="text-muted-foreground">
+            {health.status === 'checking' ? '…' : 'offline'}
+          </span>
+        )}
       </div>
       <div className="flex items-center justify-between gap-2 text-muted-foreground">
         <span>FFmpeg</span>

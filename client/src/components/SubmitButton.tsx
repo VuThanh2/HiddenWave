@@ -41,7 +41,7 @@ export function SubmitButton({
         {loading ? <LoaderCircle className="animate-spin" /> : <Icon />}
         {loading ? (loadingLabel ?? label) : label}
         {shortcut && !loading && (
-          <kbd className="ml-1 hidden rounded border border-primary-foreground/25 px-1 font-sans text-[10px] opacity-70 sm:inline">
+          <kbd className="ml-1 hidden rounded border border-primary-foreground/25 px-1 font-sans text-[12px] opacity-70 sm:inline">
             {shortcut}
           </kbd>
         )}

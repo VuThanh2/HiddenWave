@@ -17,7 +17,7 @@ export function SessionDock() {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between px-1">
-        <span className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
+        <span className="text-2xs font-medium tracking-wider text-muted-foreground uppercase">
           Phiên làm việc
         </span>
         <ModeBadge mode={session.mode} />

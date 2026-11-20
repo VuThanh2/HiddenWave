@@ -127,7 +127,7 @@ export function TrialStep({ trials, index, urls, clip, onAnswer, onQuit }: Props
                   onClick={() => answer(reference)}
                 >
                   X = {reference}
-                  <kbd className="ml-2 hidden rounded border px-1 font-sans text-[10px] text-muted-foreground sm:inline">
+                  <kbd className="ml-2 hidden rounded border px-1 font-sans text-[12px] text-muted-foreground sm:inline">
                     {reference === 'A' ? '←' : '→'}
                   </kbd>
                 </Button>

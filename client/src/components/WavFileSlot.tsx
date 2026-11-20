@@ -115,7 +115,7 @@ export function WavFileSlot({ slot, label, hint, optional, disabled, className }
                     {file.name}
                   </span>
                   {slot.origin && (
-                    <span className="shrink-0 rounded-full bg-muted px-1.5 py-px text-[10px] font-medium text-muted-foreground">
+                    <span className="shrink-0 rounded-full bg-muted px-1.5 py-px text-[12px] font-medium text-muted-foreground">
                       {ORIGIN_LABEL[slot.origin]}
                     </span>
                   )}

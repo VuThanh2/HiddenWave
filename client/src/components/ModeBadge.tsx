@@ -12,7 +12,7 @@ export function ModeBadge({ mode, className }: { mode: StegoMode; className?: st
   return (
     <span
       className={cn(
-        'inline-flex h-5 items-center gap-1 rounded-full px-2 text-[11px] font-medium ring-1 ring-inset',
+        'inline-flex h-5 items-center gap-1 rounded-full px-2 text-2xs font-medium ring-1 ring-inset',
         TONES[mode],
         className,
       )}

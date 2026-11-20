@@ -24,6 +24,9 @@ npm-debug.log*
 # Cover WAV lớn để ngoài git, chỉ giữ folder
 samples/*
 !samples/.gitkeep
+# Kết quả `hiddenwave evaluate` (CSV, hình)
+evaluation/*
+!evaluation/.gitkeep
 # Stego / output tạm khi thử tay
 *.stego.wav
 *.mp3
